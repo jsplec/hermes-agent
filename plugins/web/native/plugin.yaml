@@ -1,0 +1,7 @@
+name: web-native
+version: 1.0.0
+description: "Native web extract — local httpx fetch + trafilatura content extraction. No API key, nothing leaves the machine. Extract-only."
+author: local
+kind: backend
+provides_web_providers:
+  - native

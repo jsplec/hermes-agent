@@ -1415,6 +1415,7 @@ if _config_path.exists():
                 "container_persistent": "TERMINAL_CONTAINER_PERSISTENT",
                 "docker_volumes": "TERMINAL_DOCKER_VOLUMES",
                 "docker_env": "TERMINAL_DOCKER_ENV",
+                "docker_extra_args": "TERMINAL_DOCKER_EXTRA_ARGS",
                 "docker_mount_cwd_to_workspace": "TERMINAL_DOCKER_MOUNT_CWD_TO_WORKSPACE",
                 "docker_run_as_host_user": "TERMINAL_DOCKER_RUN_AS_HOST_USER",
                 "docker_persist_across_processes": "TERMINAL_DOCKER_PERSIST_ACROSS_PROCESSES",
@@ -8276,6 +8277,12 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                 logger.debug("Skill command check failed (non-fatal): %s", e)
         
         # Pending exec approvals are handled by /approve and /deny commands above.
+        if not command:
+            try:
+                from agent.trigger_scanner import auto_trigger as _auto_trigger
+                event.text = _auto_trigger(event.text, task_id=_quick_key)
+            except Exception:
+                pass
         # No bare text matching — "yes" in normal conversation must not trigger
         # execution of a dangerous command.
 

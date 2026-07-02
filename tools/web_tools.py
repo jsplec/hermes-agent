@@ -240,6 +240,24 @@ def _is_backend_available(backend: str) -> bool:
             return has_xai_credentials()
         except Exception:
             return False
+
+    # Generic fallback for backends not in the hardcoded list above (e.g.
+    # the "native" plugin, or any future plugin-registered provider) —
+    # consult the plugin registry instead of assuming unavailable. Without
+    # this, a plugin-only backend name always resolves to False here even
+    # though the dispatcher below (_wsp_get_provider) would find it fine,
+    # which silently downgrades web.extract_backend to whatever _get_backend()
+    # auto-detects (see issue: "native" extract_backend falling back to
+    # SearXNG, a search-only backend).
+    try:
+        _ensure_web_plugins_loaded()
+        from agent.web_search_registry import get_provider as _wsp_get_provider
+
+        provider = _wsp_get_provider(backend)
+        if provider is not None:
+            return provider.is_available()
+    except Exception:
+        pass
     return False
 
 
